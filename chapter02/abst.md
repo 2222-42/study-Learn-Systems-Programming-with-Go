@@ -106,6 +106,16 @@ type Writer interface {
 
 他の例としては、Write() メソッドで書き込まれた内容を淡々とためておいてあとでまとめて結果を受け取れる`bytes.Buffer`。
 
+bytes.Buffer には次章で紹介する、読み込みの抽象化のio.Reader の機能もあります。
+この機能を使って読み出しをしたデータは消費されてしまうため、最後のbuffer.String()では取得できません
+
+- バイト列に変換した文字列をWrite()メソッド
+- 特別に文字列を受け取れるWriteString() というメソッド
+  - WriteString() はio.Writer のメソッドではないため、他の構造体では使えません
+  - 次のio.WriteString() 関数を使えばキャストは不要
+    - `io.WriteString(buffer, "bytes.Buffer example\n")`
+
+
 ### 2.4.4 書かれた内容を記憶しておくバッファ（2）: strings.Builder
 
 ### 2.4.5 インターネットアクセスの送信
