@@ -118,6 +118,10 @@ bytes.Buffer には次章で紹介する、読み込みの抽象化のio.Reader 
 
 ### 2.4.4 書かれた内容を記憶しておくバッファ（2）: strings.Builder
 
+書き出し専用のbytes.Buffer 
+
+読み出しがString() のみになっている以外はbytes.Buffer と置き換えて使える
+
 ### 2.4.5 インターネットアクセスの送信
 
 ### 2.4.6 io.Writerのデコレータ
