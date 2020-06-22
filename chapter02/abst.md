@@ -239,3 +239,7 @@ io.Writer 関連の構造体がたくさんあるといっても、すべてを�
 次章では、io.Writer と対照の存在であるio.Reader について紹介し
 
 ## 2.9 問題
+
+### Q2.2
+
+https://golang.org/pkg/encoding/csv/
