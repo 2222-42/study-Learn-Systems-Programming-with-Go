@@ -102,9 +102,41 @@ writeSize, err := io.CopyN(writer, reader, size)
 
 ## 3.3 入出力に関するio.Writerとio.Reader以外のインタフェース
 
+一般的な入出力関連インタフェース:
+
+- io.Closerインタフェース
+  - func Close() error メソッドを持ちます。
+  - 使用し終わったファイルを閉じます。
+- io.Seekerインタフェース
+  - func Seek(offset int64, whence int) (int64, error) メソッドを持ちます。
+  - 読み書き位置を移動します。
+- io.ReaderAtインタフェース
+  - func ReadAt(p []byte, off int64) (n int, err error) メソッドを持ちます。
+  - 対象となるオブジェクトがランダムアクセスを行える場合に、好きな位置を自由にアクセスするときに使います
+
 ### 3.3.1 入出力関連の複合インタフェース
 
+io.Closerやio.Seeker だけを満たした構造体を扱うことよりも、io.Readerやio.Writerを組み合わせたインタフェースを満たす構造体を使うことが多い
+
 ### 3.3.2 入出力関連インタフェースのキャスト
+
+引数にio.ReadCloser が要求されているが、今あるオブジェクトはio.Readerしか満たしていない、ということもたまにあります
+
+その場合はioutil.NopCloser() 関数を使うと、
+ダミーのClose() メソッドを持ってio.ReadCloser のフリをする（ただしClose()しても何も起きない）ラッパーオブジェクトを得る。
+
+```
+var reader io.Reader = strings.NewReader(" テストデータ")
+var readCloser io.ReadCloser = ioutil.NopCloser(reader)
+```
+
+バッファリングが入ってしまいますが、bufio.NewReadWriter() 関数を使うと、
+個別のio.Reader とio.Writer をつなげて、io.ReadWriter 型のオブジェクトを作ることができます
+
+```
+var readWriter io.ReadWriter = bufio.NewReadWriter(reader, writer)
+```
+
 
 ## 3.4 io.Readerを満たす構造体で、よく使うもの
 
