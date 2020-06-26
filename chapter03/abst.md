@@ -137,16 +137,111 @@ var readCloser io.ReadCloser = ioutil.NopCloser(reader)
 var readWriter io.ReadWriter = bufio.NewReadWriter(reader, writer)
 ```
 
-
 ## 3.4 io.Readerを満たす構造体で、よく使うもの
+
+io.Reader インタフェースを満たす構造体
+
+構造体の種類ごとに、Read() メソッドの使い方を説明
+
+実はGo言語の構造体の多くは、読みと書きの両方のインタフェースを満たしています。さらに、前項で説明した入出力関連の他のインタフェースを満たす場合もあります。
+そのため、前章のio.Writerの説明に登場した構造体の多くは、io.Readerインタフェースも満たしています
 
 ### 3.4.1 標準入力
 
+os.Stdin:
+- io.Reader
+- io.Closer
+
+標準入力に対応するオブジェクトがos.Stdin です。このプログラムをそのまま実行すると入力待ちになり、以降はEnter が押されるたびに結果が返ってきます
+
+プログラムを単体で実行すると、入力待ちでブロックしてしまいます。つまり、入力がくるまで実行が完全停止してしまう
+- Go言語のRead() はタイムアウトのような仕組みもなく、このブロックを避けられません
+- net.Connにはタイムアウトがある
+
+Go言語の場合は並列処理機構が便利に使えるので、それを使ってノンブロッキングな処理を書きます
+
+読み込んだ文字列を処理するコードにはチャネルという仕組みを使って渡すのが定石
+
+os.Stdin の入力がキーボードに接続されているのか、上記の例のように他のプロセスに接続されているのかを判定する方法は、
+プロセス周辺のトピックとして第11章「プロセスの役割とGo言語による操作」で紹介
+
 ### 3.4.2 ファイル入力
+
+os.File:
+- io.Reader
+- io.Writer
+- io.Seeker
+- io.Closer
+
+- os.Create() 関数: ファイルの新規作成
+- os.Open() 関数: 既存のファイルを開く
+
+フラグ違いのエイリアスで、同じシステムコールが呼ばれている：
+```
+func Open(name string) (*File, error) {
+    return OpenFile(name, O_RDONLY, 0)
+}
+func Create(name string) (*File, error) {
+    return OpenFile(name, O_RDWR|O_CREATE|O_TRUNC, 0666)
+}
+```
+
+ファイルを一度開いたらClose() する必要がある。
+
+defer は、現在のスコープが終了したら、その後ろに書かれている行の処理を実行するので、確実に行う後処理を実行できる。
 
 ### 3.4.3 ネットワーク通信の読み込み
 
+net.Conn:
+- io.Reader
+- io.Writer
+- io.Closer
+
+インターネット上でのデータのやり取り
+- 送信データを送信者側から見ると書き込みで、
+- 受信者側から見ると読み込み
+
+HTTP を読み込むプログラムを開発するたびにRFC に従ってパース処理を実装するのは効率的ではありません
+
+HTTPのレスポンスをパースするhttp.ReadResponse()関数を使おう
+1. bufio.NewReader() 関数で、bufio.Reader でラップ
+2. bufio.Reader でラップしたnet.Conn を渡すと、
+3. http.Response構造体のオブジェクトが返されます
+
 ### 3.4.4 メモリに蓄えた内容をio.Readerとして読み出すバッファ
+
+| 構造体 | io.Reader | io.Writer | io.Seeker | io.Closer | io.ReaderAt |
+| --- | --- | --- | --- | --- | --- |
+|bytes.Buffer | O | O | | | |
+| bytes.Reader | O |  | O | | O |
+| strings.Reader | O | | O | | O |
+
+io.Reader としても使える
+- 書き込まれた内容をメモリに保持しておくbytes.Buffer
+- bytes.Reader
+- strings.Reader
+
+ただし、バイナリデータの解析に使うio.SectionReader だけは、
+io.Reader ではなく
+io.ReaderAt というちょっと違うインタフェースのReader を必要とする。
+
+初期化の方法(初期データが必要かどうか、初期化データの型の違い)：
+```
+// 空のバッファ -> ポインタではなく実体なので、引数に渡すときは`&buffer1`のようにポインタ値を取り出す必要がある。
+var buffer1 bytes.Buffer
+// バイト列で初期化
+buffer2 := bytes.NewBuffer([]{byte{0x10, 0x20, 0x30})
+// 文字列で初期化
+buffer3 := bytes.NewBufferString(" 初期文字列")
+```
+
+```
+// bytes.Reader はbytes.NewReader で作成
+bReader1 := bytes.NewReader([]byte{0x10, 0x20, 0x30})
+bReader2 := bytes.NewReader([]byte(" 文字列をバイト配列にキャストして設定")
+// strings.Reader はstrings.NewReader() 関数で作成
+sReader := strings.NewReader("Reader の出力内容は文字列で渡す")
+```
 
 ## 3.5 バイナリ解析用のio.Reader関連機能
 
