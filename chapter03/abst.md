@@ -245,7 +245,39 @@ sReader := strings.NewReader("Reader の出力内容は文字列で渡す")
 
 ## 3.5 バイナリ解析用のio.Reader関連機能
 
+io.Reader から出てくるデータは:
+- テキストデータのこともあれば
+- バイナリデータのこともあります。
+
+まずはバイナリデータを読み込むときに便利な機能を見る
+
 ### 3.5.1 必要な部位を切り出すio.LimitReader／io.SectionReader
+
+io.LimitReader を使うと、データがたくさん入っていても、先頭の一部だけしか読み込めないようにブロック
+
+使用ケース:
+
+- たとえばファイルの先頭にヘッダー領域があって、そこだけを解析するルーチンに処理を渡したい
+
+```
+// たくさんデータがあっても先頭の16 バイトしか読み込めないようにする
+lReader := io.LimitReader(reader, 16)
+```
+
+io.SectionReader:
+
+- io.Reader が使えず、代わりにio.ReaderAt を使う
+― 使える型、使えない型について
+  - os.File 型はio.ReaderAt を満たしますが、
+  - それ以外のio.Reader を満たす型からio.SectionReader で直接に読み込むことはできません
+    - strings.Reader やbytes.Reader でラップしてから渡す
+
+使用ケース：
+
+- PNGファイルやOpenType フォントなど、バイナリファイル内がいくつかのチャンク（データの塊）に分かれている場合は、
+チャンクごとにReader を分けて読み込ませる
+
+
 
 ### 3.5.2 エンディアン変換
 
