@@ -302,7 +302,35 @@ PNGファイルはバイナリフォーマットです。
 
 例：各チャンクとその長さを列挙
 
+```
+chunk 'IHDR' (13 bytes)
+chunk 'sRGB' (1 bytes)
+chunk 'IDAT' (473761 bytes)
+chunk 'IEND' (0 bytes)
+```
+
 ### 3.5.4 PNG画像に秘密のテキストを入れてみる
+
+PNGに埋め込まれる(画像としては表示されない)テキストのチャンク：
+
+- テキストを追加するためのtEXt
+- また、それに圧縮をかけたzTXt
+
+chunkの書き込み、テキストチャンクの中は複雑に見えますが、パーツごとに見れば、
+それぞれio.Writerの書き込みのみで構成されているから実際単純。
+- binary.Write()による長さの書き込み、
+- 次にチャンク名の書き込み、
+- 本体の書き込み、
+- 最後にCRCの計算と、binary.Write() による書き込みです
+
+```
+chunk 'IHDR' (13 bytes)
+chunk 'tEXt' (19 bytes)
+ASCII PROGRAMMING++
+chunk 'sRGB' (1 bytes)
+chunk 'IDAT' (473761 bytes)
+chunk 'IEND' (0 bytes)
+```
 
 ## 3.6 テキスト解析用のio.Reader関連機能
 
