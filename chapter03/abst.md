@@ -391,6 +391,55 @@ encoding/json はさまざまな使い方ができる複雑なライブラリな
 
 ## 3.7 io.Reader／io.Writerでストリームを自由に操る
 
+C++やJava、Node.js では、各言語で定義されたインタフェースを使ったデータ入出力の機構を`ストリーム`と呼んでいます
+
+io.Reader とio.Writerをデータが流れるパイプとして使うことができる
+
+データの流れを自由に制御するために使える構造体、3種類:
+
+- `io.MultiReader`
+- `io.TeeReader`
+- `io.Pipe` ( `io.PipeReader` と `io.PipeWriter` )
+
+### io.MultiReader
+
+引数で渡されたio.Readerのすべての入力がつながっているかのように動作
+
+```
+reader := io.MultiReader(readers ...Reader) // Readerを返す
+```
+
+### io.TeeReader
+
+読み込まれた内容を別のio.Writer に書き出す(io.MultiWriterは書き込まれた内容を書き出していたが、それと類似)
+
+io.TeeReaderを使うと、クライアントからの入力と標準出力のログ出力の両立ができます。
+
+### io.Pipe
+
+io.Pipe() を使うと、io.PipeReader とio.PipeWriterのペアが得られます
+
+Writerに書き込んだものは、Readerから出力されます。
+
+注意：
+
+- このパイプは同期的なデータのやり取りしか行えません
+  - Read()が先に呼ばれると、Write()を呼ぶまでブロック
+  - 先にWrite() が呼ばれると、誰かがRead() を呼ぶまでブロック
+ 
+対処方法：bufio.NewWriter などでバッファリングすると、ブロックしないで読み書きできるようになります
+
+#### Note
+
+シングルスレッド／プロセスでは必ずio.Pipe() 操作がブロックしてプログラムがデッドロックする
+
+書き込み側、あるいは読み込み側のどちらかを並列化するには、
+次のように関数呼び出しの前にgoを付与してgoroutine による並行処理にします。
+
+```
+go io.Copy(pipe, reader)
+```
+
 ## 3.8 本章のまとめと次章予告
 
 本章ではio.Readerの仲間たちと、io.Reader と一緒に使う補助関数、具体的なサンプルをいくつか紹介
