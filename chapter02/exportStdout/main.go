@@ -7,6 +7,7 @@ import (
 )
 
 // 2.4.2
+// 2.4.7
 func main() {
 	// os.Stdoutは画面への出力、os.Stderrは標準エラー出力
 	os.Stdout.Write([]byte("os.Stdout example\n"))

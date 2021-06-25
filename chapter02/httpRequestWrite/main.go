@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// 2.4.7
 func main() {
 	request, err := http.NewRequest("GET", "http://acii.jp", nil)
 	if err != nil {

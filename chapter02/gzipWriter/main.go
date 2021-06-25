@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// 2.4.6
 func main() {
 	file, err := os.Create("test.txt.gz")
 	if err != nil {
