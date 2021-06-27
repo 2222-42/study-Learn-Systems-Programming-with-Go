@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	// OpenもCloseもOpenFile()を使い同じシステムコールを読んでいる
 	file, err := os.Open("file.go")
 	if err != nil {
 		panic(err)

@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// 3.2.1
 func main() {
 	file, err := os.Open("main.go")
 	if err != nil {
