@@ -7,16 +7,21 @@ import (
 	"os"
 )
 
+// 3.5.3
 func readChunks(file *os.File) []io.Reader {
 	var chunks []io.Reader
 
-	file.Seek(8, 0)
+	if _, err := file.Seek(8, 0); err != nil {
+		panic(err)
+	}
+
 	var offset int64 = 8
 
 	for {
 		var length int32
-		err := binary.Read(file, binary.BigEndian, &length)
-		if err == io.EOF {
+
+		// ここで現在位置は長さを読み終わった箇所になる
+		if err := binary.Read(file, binary.BigEndian, &length); err == io.EOF {
 			break
 		}
 
@@ -30,9 +35,15 @@ func readChunks(file *os.File) []io.Reader {
 
 func dumpChunk(chunk io.Reader) {
 	var length int32
-	binary.Read(chunk, binary.BigEndian, &length)
+	if err := binary.Read(chunk, binary.BigEndian, &length); err != nil {
+		panic(err)
+	}
+
 	buffer := make([]byte, 4)
-	chunk.Read(buffer)
+	if _, err := chunk.Read(buffer); err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("chunk '%v' (%d bytes)\n", string(buffer), length)
 }
 

@@ -9,16 +9,19 @@ import (
 	"os"
 )
 
+// 3.5.4
 func readChunks(file *os.File) []io.Reader {
 	var chunks []io.Reader
 
-	file.Seek(8, 0)
+	if _, err := file.Seek(8, 0); err != nil {
+		panic(err)
+	}
+
 	var offset int64 = 8
 
 	for {
 		var length int32
-		err := binary.Read(file, binary.BigEndian, &length)
-		if err == io.EOF {
+		if err := binary.Read(file, binary.BigEndian, &length); err == io.EOF {
 			break
 		}
 
@@ -32,13 +35,22 @@ func readChunks(file *os.File) []io.Reader {
 
 func dumpChunk(chunk io.Reader) {
 	var length int32
-	binary.Read(chunk, binary.BigEndian, &length)
+	if err := binary.Read(chunk, binary.BigEndian, &length); err != nil {
+		panic(err)
+	}
+
 	buffer := make([]byte, 4)
-	chunk.Read(buffer)
+	if _, err := chunk.Read(buffer); err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("chunk '%v' (%d bytes)\n", string(buffer), length)
 	if bytes.Equal(buffer, []byte("tEXt")) {
 		rawText := make([]byte, length)
-		chunk.Read(rawText)
+		if _, err := chunk.Read(rawText); err != nil {
+			panic(err)
+		}
+
 		fmt.Println(string(rawText))
 	}
 }
@@ -46,12 +58,31 @@ func dumpChunk(chunk io.Reader) {
 func textChunk(text string) io.Reader {
 	byteData := []byte(text)
 	var buffer bytes.Buffer
-	binary.Write(&buffer, binary.BigEndian, int32(len(byteData)))
-	buffer.WriteString("tEXt")
-	buffer.Write(byteData)
+
+	// 長さ
+	if err := binary.Write(&buffer, binary.BigEndian, int32(len(byteData))); err != nil {
+		panic(err)
+	}
+
+	// 種類(チャンク名)
+	if _, err := buffer.WriteString("tEXt"); err != nil {
+		panic(err)
+	}
+
+	// データ
+	if _, err := buffer.Write(byteData); err != nil {
+		panic(err)
+	}
+
 	crc := crc32.NewIEEE()
-	io.WriteString(crc, "tEXt")
-	binary.Write(&buffer, binary.BigEndian, crc.Sum32())
+	if _, err := io.WriteString(crc, "tEXt"); err != nil {
+		panic(err)
+	}
+
+	if err := binary.Write(&buffer, binary.BigEndian, crc.Sum32()); err != nil {
+		panic(err)
+	}
+
 	return &buffer
 }
 
@@ -81,11 +112,22 @@ func main() {
 	defer newFile.Close()
 	chunks := readChunks(file)
 
-	io.WriteString(newFile, "\x89PNG\r\n\x1a\n")
-	io.Copy(newFile, chunks[0])
-	io.Copy(newFile, textChunk("ASCII PROGRAMMING++"))
+	if _, err := io.WriteString(newFile, "\x89PNG\r\n\x1a\n"); err != nil {
+		panic(err)
+	}
+
+	if _, err := io.Copy(newFile, chunks[0]); err != nil {
+		panic(err)
+	}
+
+	if _, err := io.Copy(newFile, textChunk("ASCII PROGRAMMING++")); err != nil {
+		panic(err)
+	}
+
 	for _, chunk := range chunks[1:] {
-		io.Copy(newFile, chunk)
+		if _, err := io.Copy(newFile, chunk); err != nil {
+			panic(err)
+		}
 	}
 	readAgain()
 }
