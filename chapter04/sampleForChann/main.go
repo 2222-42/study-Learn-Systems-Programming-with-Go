@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+// 4.2.3
 func primeNumber() chan int {
 	result := make(chan int)
 	go func() {

@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// 4.1
 func main() {
 	fmt.Println("start sub()")
 	go func() {
