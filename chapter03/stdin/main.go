@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+// 3.4.1
+// nonblockingにするためにgoroutineを使うのは13章
 func main() {
 	for {
 		buffer := make([]byte, 5)

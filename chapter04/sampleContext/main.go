@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// 4.2.5
 func main() {
 	fmt.Println("start sub()")
 

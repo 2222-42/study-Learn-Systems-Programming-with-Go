@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 
+// 4.2.1
 func main() {
 	fmt.Println("start sub()")
 	done := make(chan bool)
