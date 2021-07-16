@@ -3,15 +3,18 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"time"
 )
 
 // 6.5
+// 6.6.1
 func main() {
 	ln, err := net.Listen("tcp", "localhost:8888")
 	if err != nil {
@@ -27,39 +30,53 @@ func main() {
 		}
 
 		go func() {
+			defer conn.Close()
 			fmt.Printf("Accept %v\n", conn.RemoteAddr())
 
-			request, err := http.ReadRequest(bufio.NewReader(conn))
-			if err != nil {
-				panic(err)
-			}
+			for {
+				if err := conn.SetReadDeadline(time.Now().Add(5 * time.Second)); err != nil {
+					panic(err)
+				}
 
-			dump, err := httputil.DumpRequest(request, true)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println(string(dump))
+				request, err := http.ReadRequest(bufio.NewReader(conn))
+				if err != nil {
+					neterr, ok := err.(net.Error)
+					if ok && neterr.Timeout() {
+						fmt.Println("Timeout")
+						break
+					} else if err == io.EOF {
+						break
+					}
+					panic(err)
+				}
 
-			response := http.Response{
-				Status:           "",
-				StatusCode:       200,
-				Proto:            "",
-				ProtoMajor:       1,
-				ProtoMinor:       0,
-				Header:           nil,
-				Body:             ioutil.NopCloser(strings.NewReader("Hello World\n")),
-				ContentLength:    0,
-				TransferEncoding: nil,
-				Close:            false,
-				Uncompressed:     false,
-				Trailer:          nil,
-				Request:          nil,
-				TLS:              nil,
+				dump, err := httputil.DumpRequest(request, true)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(string(dump))
+				content := "Hello World\n"
+
+				response := http.Response{
+					Status:           "",
+					StatusCode:       200,
+					Proto:            "",
+					ProtoMajor:       1,
+					ProtoMinor:       1,
+					Header:           nil,
+					Body:             ioutil.NopCloser(strings.NewReader(content)),
+					ContentLength:    int64(len(content)),
+					TransferEncoding: nil,
+					Close:            false,
+					Uncompressed:     false,
+					Trailer:          nil,
+					Request:          nil,
+					TLS:              nil,
+				}
+				if err := response.Write(conn); err != nil {
+					panic(err)
+				}
 			}
-			if err := response.Write(conn); err != nil {
-				panic(err)
-			}
-			conn.Close()
 		}()
 
 	}
