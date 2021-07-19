@@ -92,6 +92,7 @@ func processSession(conn net.Conn) {
 // 6.5
 // 6.6.1
 func main() {
+	// TCPではlnをcloseしなくてもよい
 	ln, err := net.Listen("tcp", "localhost:8888")
 	if err != nil {
 		panic(err)
