@@ -17,7 +17,8 @@ import (
 func main() {
 	path := filepath.Join(os.TempDir(), "unixdomainsocket-sample")
 	if err := os.Remove(path); err != nil {
-		panic(err)
+		// ない場合、削除しようとしてエラーが起きるので、logに書き出すだけにする
+		log.Println(err)
 	}
 	listener, err := net.Listen("unix", path)
 	if err != nil {
