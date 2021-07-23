@@ -2,14 +2,19 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
+	"os"
+	"path/filepath"
 )
 
-const address = "localhost:8888"
-
 func main() {
-	fmt.Println("Server is running at " + address)
-	conn, err := net.ListenPacket("udp", address)
+	path := filepath.Join(os.TempDir(), "unixdomainsocket-server")
+	if err := os.Remove(path); err != nil {
+		// ない場合、削除しようとしてエラーが起きるので、logに書き出すだけにする
+		log.Println(err)
+	}
+	conn, err := net.ListenPacket("unixgram", path)
 	if err != nil {
 		panic(err)
 	}
