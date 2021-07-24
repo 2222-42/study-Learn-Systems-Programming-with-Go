@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -40,14 +41,26 @@ func remove() {
 	}
 }
 
+// osを使う方は、そのままファイル名を指定できる
 func truncateOs() {
-	os.Truncate("textfile.txt", 20)
+	if err := os.Truncate("textfile.txt", 20); err != nil {
+		log.Println(err)
+	}
 }
 
+// Fileを使う方は、OpenFileを指定しんまいといけない
 func truncateFile() {
-	file, _ := os.Open("textfile.txt")
-	file.Truncate(10)
+	file, err := os.OpenFile("textfile.txt", os.O_RDWR|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
 	defer file.Close()
+
+	//  truncate textfile.txt: invalid argument
+	if err := file.Truncate(10); err != nil {
+		log.Println(err)
+	}
+
 }
 
 func main() {
