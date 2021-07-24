@@ -40,10 +40,24 @@ func remove() {
 	}
 }
 
+func truncateOs() {
+	os.Truncate("textfile.txt", 20)
+}
+
+func truncateFile() {
+	file, _ := os.Open("textfile.txt")
+	file.Truncate(10)
+	defer file.Close()
+}
+
 func main() {
 	create()
 	open()
 	append()
+	open()
+	truncateOs()
+	open()
+	truncateFile()
 	open()
 	remove()
 }
