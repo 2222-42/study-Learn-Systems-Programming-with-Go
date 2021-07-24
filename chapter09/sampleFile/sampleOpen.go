@@ -34,9 +34,16 @@ func append() {
 	io.WriteString(file, "Appended content\n")
 }
 
+func remove() {
+	if err := os.Remove("textfile.txt"); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	create()
 	open()
 	append()
 	open()
+	remove()
 }
