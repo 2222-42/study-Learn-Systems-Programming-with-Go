@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"syscall"
 )
 
 func main() {
@@ -27,4 +28,7 @@ func main() {
 	fmt.Printf("  読み書き可能な通常ファイル? %v\n", info.Mode().IsRegular())
 	fmt.Printf("  Unixのファイルアクセス権限ビット %o\n", info.Mode().Perm())
 	fmt.Printf("  モードのテキスト表現 %v\n", info.Mode().String())
+
+	internalStat := info.Sys().(*syscall.Stat_t)
+	fmt.Printf("OS固有情報 %#v\n", internalStat)
 }
