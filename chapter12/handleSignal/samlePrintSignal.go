@@ -32,8 +32,11 @@ func main() {
 	fmt.Println("print signal for 5 seconds.")
 	time.Sleep(5 * time.Second)
 
-	fmt.Println("no printing now.")
-	signal.Reset(syscall.SIGINT, syscall.SIGHUP)
+	//fmt.Println("no printing now.")
+	//signal.Reset(syscall.SIGINT, syscall.SIGHUP)
+
+	fmt.Println("back to default")
+	signal.Stop(signals)
 
 	wg.Wait()
 }
