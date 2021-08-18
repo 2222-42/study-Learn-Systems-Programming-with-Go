@@ -9,6 +9,8 @@ import (
 func main() {
 	t := time.Now()
 	fmt.Println(t.String())
+	fmt.Println(t.Format(time.RFC822))
+	fmt.Println(t.Format("2006/01/02/ 03:04:05 MST"))
 
 	dr, err := time.ParseDuration("10m30s")
 	if err != nil {
