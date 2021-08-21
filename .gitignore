@@ -1,3 +1,8 @@
+# 実行ファイルの除外
+*
+!*/
+!*.*
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -15,3 +20,4 @@
 # vendor/
 
 .idea/
+chapter17/rootfs
