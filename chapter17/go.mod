@@ -1,11 +1,11 @@
 module container.go
 
-go 1.22
+go 1.23.0
 
 require (
 	github.com/opencontainers/runc v1.2.8
 	github.com/sirupsen/logrus v1.9.3
-	golang.org/x/sys v0.28.0
+	golang.org/x/sys v0.31.0
 )
 
 require (
@@ -26,6 +26,6 @@ require (
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
 	github.com/vishvananda/netlink v1.1.0 // indirect
 	github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df // indirect
-	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
